@@ -1,0 +1,14 @@
+feature scp-server
+feature vrrp
+nv overlay evpn
+feature ospf
+feature bgp
+feature pim
+feature fabric forwarding
+feature interface-vlan
+feature vn-segment-vlan-based
+feature dhcp
+feature nv overlay
+hardware access-list tcam region vpc-convergence 0
+hardware access-list tcam region arp-ether 256
+
