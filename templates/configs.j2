@@ -1,0 +1,20 @@
+router ospf underlay
+router-id {{ host.facts.OSPF.rid }}
+interface loopback0
+ip address {{ host.facts.OSPF.Loopback }}
+ip router ospf underlay area 0.0.0.0
+
+router bgp {{ host.facts.BGP.ASN }}
+router-id  {{ host.facts.BGP.rid }}
+{% for neighbor in  host.facts.BGP.peers %}
+neighbor {{ neighbor ["neighbor"] }} 
+remote-as  {{ neighbor ["peer_asn"] }} 
+ update-source loopback0
+ ebgp-multihop 2
+  address-family ipv4 unicast
+  exit 
+  {% endfor %}
+
+
+
+

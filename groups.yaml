@@ -1,0 +1,30 @@
+---
+cisco_group:
+     username: "admin"
+     password: "admin"
+     platform: ios
+     connection_options:
+         scrapli:
+             extras:
+                 auth_strict_key: False
+                 transport: system
+                 transport_options: {"open_cmd": ["-o", "KexAlgorithms=+diffie-hellman-group1-sha1"]}
+     
+
+
+nxos_group:
+     username: "admin"
+     password: "Iraq@1234"
+     platform: "nxos"
+     connection_options:
+         scrapli:
+             extras:
+                 auth_strict_key: False
+                 transport: system
+                 transport_options: {"open_cmd": ["-o", "KexAlgorithms=+diffie-hellman-group1-sha1"]}      
+         napalm:
+           optional_args:
+               global_delay_factor: 4
+
+     data:
+              ntp_server: "8.8.8.8"

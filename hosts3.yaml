@@ -1,0 +1,38 @@
+Spine1:
+     hostname: "192.168.86.30"
+     data:
+        layer: Spine
+     groups:
+         - nxos_group
+
+
+Spine2:
+     hostname: "192.168.86.31"
+     data:
+        layer: Spine
+     groups:
+         - nxos_group
+
+Leaf3:
+     hostname: "192.168.86.33"
+     data:
+        layer: Leaf
+     groups:
+         - nxos_group
+     
+
+Leaf4:
+     hostname: "192.168.86.34"
+     data:
+        layer: Leaf
+     groups:
+         - nxos_group
+
+         
+Leaf5:
+     hostname: "192.168.86.35"
+     data:
+        layer: Leaf
+     groups:
+         - nxos_group
+  

@@ -1,0 +1,4 @@
+
+router ospf {{ host['ospf']['ospf_process'] }}
+router-id {{ host['ospf']['ospf_rid'] }}
+network {{host['ospf']['ospf_networks']['ip'] }}  {{host['ospf']['ospf_networks']['wildcard'] }}  area {{host['ospf']['ospf_networks']['area'] }}

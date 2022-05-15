@@ -1,0 +1,22 @@
+feature nxapi
+feature vrrp
+feature ospf
+feature bgp
+feature interface-vlan
+feature dhcp
+feature scp-server
+route-map permit permit 10
+snmp-server community VRSN-NetOps ro
+logging event link-status enable
+logging server 192.168.86.1 use-vrf management
+username Net_admin  password Netadmin123 role network-admin
+int Eth1/1-15
+  no switchport
+  mtu 9216
+  medium p2p
+  no ip redirects
+  ip unnumbered loopback0
+  no ipv6 redirects
+  ip ospf network point-to-point
+  ip router ospf underlay area 0.0.0.0
+  no shutdown

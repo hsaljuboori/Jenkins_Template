@@ -1,0 +1,53 @@
+
+
+ip pim rp-address {{ host.group_facts.rp_add }} group-list 224.0.0.0/8
+ip pim ssm range 232.0.0.0/8
+ip pim anycast-rp {{ host.group_facts.rp_add }} {{ host.facts.OSPF.rid  }}
+
+interface loopback0
+  ip address {{  host.facts.Loopback  }} 
+  ip ospf network point-to-point
+  ip router ospf underlay area 0.0.0.0
+  ip pim sparse-mode
+
+  interface loopback1
+  ip address {{ host.group_facts.rp_add }} 255.255.255.255
+  ip ospf network point-to-point
+  ip router ospf underlay area 0.0.0.0
+  ip pim sparse-mode
+
+  router ospf underlay
+  router-id {{ host.facts.OSPF.rid  }}
+
+  {% for intf in host.facts.OSPF.interfaces %}
+  interface {{ intf }}
+  description Spine1--> leafs
+  no switchport
+  mtu 9216
+  medium p2p
+  no ip redirects
+  ip unnumbered loopback0
+  no ipv6 redirects
+  ip ospf network point-to-point
+  ip router ospf underlay area 0.0.0.0
+  no shutdown
+{% endfor %}
+
+router bgp {{ host.facts.BGP.ASN  }}
+  router-id {{ host.facts.BGP.rid  }}
+  address-family ipv4 unicast
+  address-family l2vpn evpn
+  retain route-target all
+  template peer VXALN_LEAF
+  update-source loopback0
+  ebgp-multihop 2
+  address-family ipv4 unicast
+  send-community extended
+  address-family l2vpn evpn
+  send-community extended
+{% for neighbor in  host.facts.BGP.peers %}
+neighbor {{ neighbor ["neighbor"] }} 
+remote-as  {{ neighbor ["peer_asn"] }} 
+ inherit peer VXALN_LEAF
+ {% endfor %}
+

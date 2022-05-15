@@ -1,0 +1,20 @@
+interface loopback 0
+ ip address {{ host.facts.bgp.rid }} 255.255.255.255
+no shut
+router bgp {{ host.facts.bgp.asn }}
+bgp router-id {{ host.facts.bgp.rid }}
+{% if host.facts.bgp.route_reflector == True %}
+neighbor {{ host.facts.bgp.peer_groups }} peer-group 
+neighbor {{ host.facts.bgp.peer_groups }} remote-as {{ host.facts.bgp.asn }}
+neighbor {{ host.facts.bgp.peer_groups }} update-source {{ host.facts.bgp.update_source }}
+neighbor {{ host.facts.bgp.peer_groups }} route-reflector-client 
+{% for neighbor in host.facts.bgp.neighbors %}
+neighbor {{ neighbor }} peer-group {{ host.facts.bgp.peer_groups }}
+{% endfor%}
+{% endif%}
+{% if host.facts.bgp.route_reflector == False %}
+{% for neighbor in host.facts.bgp.neighbors %}
+neighbor {{ neighbor }} remote-as {{ host.facts.bgp.asn }}
+neighbor {{ neighbor }} update-source {{ host.facts.bgp.update_source }}
+{%endfor%}
+{% endif%}

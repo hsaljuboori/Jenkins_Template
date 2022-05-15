@@ -1,0 +1,105 @@
+
+fabric forwarding anycast-gateway-mac 0000.0011.1234
+
+ip pim rp-address {{ host.group_facts.rp_addr }} group-list 224.0.0.0/4
+ip pim ssm range 232.0.0.0/8
+
+{% for vlan in host.facts.vlans %}
+vlan {{ vlan["name"] }}
+vn-segment {{ vlan["vni"] }}
+
+{% if vlan["L3VNI"] == True %}
+vrf context vxlan
+ vni  {{ vlan["vni"] }}
+  rd auto
+  address-family ipv4 unicast
+  route-target both auto 
+   route-target both auto evpn
+
+interface vlan {{ vlan["name"] }}
+no shutdown 
+  vrf member vxlan
+  ip forward
+
+{% else %}
+interface vlan {{ vlan["name"] }}
+  no shutdown
+  ip address {{ vlan["svi_ip"]}}
+  fabric forwarding mode anycast-gateway
+{% endif %}
+{% endfor %}
+
+interface nve1
+  no shutdown
+  source-interface loopback0
+  host-reachability protocol bgp
+{% for vlan in host.facts.vlans %}
+ {% if vlan["L3VNI"] == False %} 
+  member vni {{ vlan["vni"] }}
+  suppress-arp
+   mcast-group 224.1.1.192
+ {% else %}
+  member vni {{ vlan["vni"] }} associate-vrf
+{% endif %}
+{% endfor %}
+
+router ospf underlay
+ router-id {{ host.facts.OSPF.rid }}
+{% for intf in host.facts.OSPF.interfaces %}
+interface {{ intf }}
+no switchport
+mtu 9216
+medium p2p
+ip unnumbered loopback0
+ip ospf network point-to-point
+ip router ospf UNDERLAY area 0.0.0.0
+ip pim sparse-mode
+no shutdown
+{% endfor %}
+
+interface loopback0
+  ip address {{ host.facts.Loopback }}
+  ip router ospf underlay area 0.0.0.0
+  ip ospf network point-to-point
+  ip pim sparse-mode
+
+evpn
+{% for vlan in host.facts.vlans %}
+ {% if vlan["L3VNI"] == False %} 
+vni {{ vlan["vni"] }} l2
+rd auto
+route-target import auto
+route-target export auto
+{% endif %}
+{% endfor %}
+
+
+router bgp {{ host.facts.BGP.ASN }}
+  router-id {{ host.facts.BGP.rid }}
+  address-family ipv4 unicast
+  address-family l2vpn evpn
+  template peer VXALN_SPINE
+    remote-as {{ host.group_facts.Spine_ASN }}
+    update-source loopback0
+     ebgp-multihop 2
+    address-family ipv4 unicast
+      send-community extended
+      soft-reconfiguration inbound
+    address-family l2vpn evpn
+      send-community extended
+   {% for neighbor in  host.facts.BGP.peers %}
+neighbor {{ neighbor ["neighbor"] }} 
+inherit peer VXALN_SPINE
+  {% endfor %}
+vrf vxlan
+log-neighbor-changes
+ address-family ipv4 unicast
+ {% for ntwks in host.facts.BGP.advertising %}
+network {{ ntwks }}
+{% endfor %}
+ advertise l2vpn evpn
+
+
+
+
+

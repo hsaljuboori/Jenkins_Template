@@ -1,0 +1,36 @@
+OSPF:
+    rid: "3.3.3.3"
+    interfaces:
+        - Ethernet1/1
+        - Ethernet1/2
+
+Loopback: "3.3.3.3/32"      
+
+BGP:
+    rid: "3.3.3.3"
+    ASN: "65003"
+    peers:
+        - neighbor: "1.1.1.1"
+          peer_asn: "65000"
+
+        - neighbor: "2.2.2.2"
+          peer_asn: "65000"
+          
+    advertising:
+              - 10.10.10.0/24 
+              - 10.10.20.0/24
+vlans:
+   - name: 10
+     vni: 101010
+     L3VNI: Fasle 
+     svi_ip: 10.10.10.254 255.255.255.0
+
+   - name: 20
+     vni: 202020
+     L3VNI: Fasle 
+     svi_ip: 10.10.20.254 255.255.255.0
+
+   - name: 2000
+     vni: 202020
+     L3VNI: True
+     

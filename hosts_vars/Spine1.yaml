@@ -1,0 +1,21 @@
+OSPF:
+    rid: "1.1.1.1"
+    interfaces:
+        Eth1/5
+        Eth1/6
+        Eth1/7
+
+Loopback: "1.1.1.1/32"       
+
+BGP:
+    rid: "1.1.1.1"
+    ASN: "65000"
+    peers:
+        - neighbor: "3.3.3.3"
+          peer_asn: "65003"
+
+        - neighbor: "4.4.4.4"
+          peer_asn: "65004"
+        
+        - neighbor: "5.5.5.5"
+          peer_asn: "65005" 
